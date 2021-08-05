@@ -139,6 +139,8 @@ select count(*) from employees; -- 특절 컬럼이 아닌 레코드의 갯수 �
 
 select count (commission_pct) from employees; -- 해당 컬럼이 null이 아닌 갯수
 select count (*) from employees
+
+
 where commission_pct is not null; -- 위랑 같은 의미
 
 --sum : 합계
