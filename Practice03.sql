@@ -393,9 +393,82 @@ where e.department_id = sal.department_id and
 order by e.department_id;
 
 
+-- Correlated Query
+-- 외부 쿼리와 내부 쿼리가 연관관계를 맺는 쿼리
+select
+    e.department_id,
+    e.employee_id,
+    e.first_name,
+    e.salary
+from employees e
+where e.salary = (select max(salary) from employees
+    where department_id = e.department_id)
+order by e.department_id;
+
+-- Top-K Query
+-- Rownum : 레코드의 순서를 가르키는 가상의 컬럼(Pseudo)
+
+-- 2007년 입사자 중에서 급여 순위 출력
+select * from employees
+    where hire_date like '07%'
+    order by salary desc, first_name;
+    
+-- 2007년 입사자 중에서 급여 순위 5위까지 출력
+select rownum, first_name
+from (select * from employees
+    where hire_date like '07%'
+    order by salary desc, first_name)
+where rownum <= 5;
 
 
+-- 집합 연산 : SET
+-- UNION : 합집합(OR), UNION ALL : 합집합, 중복 요소 체크 안함
+-- INTERSECT : 교집합
+-- MINUS : 차집합
+
+-- 05/01/01 이전 입사자 퀄리 
+select first_name, salary, hire_date from employees where hire_date < '05/01/01'; -- 24명
+-- 급여를 12000 초과 수령한 사원
+select first_name, salary, hire_date from employees where salary > 12000; -- 8명
 
 
+-- 26명 05/01/01 이전 입사자이거나 12000이상 받는 사원 
+select first_name, salary, hire_date from employees where hire_date < '05/01/01'
+UNION -- 합집합(OR)
+select first_name, salary, hire_date from employees where salary > 12000;
+
+-- 32명 05/01/01 이전 입사자와 12000이상 받는 사원 
+select first_name, salary, hire_date from employees where hire_date < '05/01/01'
+UNION ALL -- 합집합 : 중복 허용
+select first_name, salary, hire_date from employees where salary > 12000;
+
+-- 6명  : 05/01/01 이전 입사자중에서 12000이상 받는 사원
+select first_name, salary, hire_date from employees where hire_date < '05/01/01'
+INTERSECT -- 교집합(AND)
+select first_name, salary, hire_date from employees where salary > 12000;
+
+-- 18명 : 05/01/01 이전 입사자이거나 12000이상 받는 사원만 
+select first_name, salary, hire_date from employees where hire_date < '05/01/01'
+MINUS -- 차집합
+select first_name, salary, hire_date from employees where salary > 12000;
 
 
+-- 순위 함수
+-- RANK () : 중복 순위가 있으면 건너뛴다
+-- DENSE_RANK() : 중복 순위 상관없이 다음 순위
+-- ROW_NUMBER () : 순위 상관없이 차례대로
+
+select salary, first_name,
+    rank() over (order by salary desc) rank,
+    dense_rank() over ( order by salary desc) dense_rank,
+    row_number () over ( order by salary desc) row_number
+from employees;
+
+-- hierachical Query : 계층적 쿼리
+-- Thee 형태의 구조 추출
+-- LEVEL 가상 컬럼
+select level, first_name, manager_id
+from employees
+start with manager_id is null -- 트리 시작 조건
+connect by prior employee_id = manager_id
+order by level;
