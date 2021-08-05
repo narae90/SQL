@@ -293,3 +293,109 @@ from employees e left outer join departments d
     employees m
 where e.manager_id = m.employee_id;
 
+
+
+--------------
+-- SUBQUERY
+--------------
+-- 하나의 질의문 안에 다른 질의문을 포함하는 형태
+-- 전체 사원 중, 급여의 중앙값보다 많이 받는 사워
+
+-- 1. 급여의 중앙값 ?
+SELECT median (salary) from employees; -- 6200
+
+-- 2. 6200보다 많이 받는 사원 퀄;
+select 
+    first_name , 
+    salary 
+from employees 
+where salary > 6200;
+    
+-- 3. 두 쿼리를 합친다.
+select first_name, salary
+from employees
+where salary > (select median(salary) from employees);
+
+
+-- Den 보다 늦게 입사한 사원들
+-- 1. Den 입사일 쿼리
+select
+ hire_date from employees where first_name = 'Den'; -- 02/12/07
+ 
+-- 2. 특정 날짜 이후에 입사한 사원 쿼리
+select 
+ first_name,hire_date
+from employees
+where hire_date >= '02/12/07';
+
+-- 3. 두 쿼리를 합친다.
+select 
+ first_name,hire_date
+from employees
+where hire_date >= 
+(select hire_date from employees where first_name = 'Den');
+ 
+ 
+ 
+ -- 다중행 서브 쿼리 
+ -- 서브 쿼리의 결과 레코드가 둘 이상이 나올 때 단일행 연산자를 사용할 수 없다
+ -- in, ANY, ALLM EXISTS 등 집합 연산자를 활용
+ select salary from employees where department_id = 110;
+ 
+ select first_name, salary from employees 
+ where salary = (select salary from employees where department_id = 110); -- ERROR
+ 
+ -- 결과가 다중행이면 집합 연산자를 활용
+ -- salary = 12008 or salary = 8300
+select first_name, salary from employees 
+where salary in (select salary from employees where department_id = 110); 
+
+-- ALL(AND)
+-- salary > 12008 and salary > 8300
+select first_name, salary from employees 
+where salary > all (select salary from employees where department_id = 110); 
+
+-- ANY(OR)
+-- salary > 12008 or salary > 8300
+select first_name, salary from employees 
+where salary > any (select salary from employees where department_id = 110); 
+
+-- 각 부서별로 최고 급여를 받는 사원을 출력
+-- 1. 각 부서의 최고 급여를 확인하는 쿼리
+select department_id, max(salary) from employees
+group by department_id;
+
+
+-- 2. 서브 쿼리의 결과 (department_id, max(salary))
+select 
+    department_id, 
+    employee_id, 
+    first_name, salary
+    
+from employees
+
+where 
+    (department_id, salary) in 
+    (select department_id, max(salary) 
+    from employees group by department_id);
+    
+-- 서브쿼리와 조인(JOIN)
+select 
+    e.department_id,
+    e.employee_id, 
+    e.first_name, 
+    e.salary
+    
+from employees e, (select department_id, max(salary) 
+        salary from employees group by department_id) sal
+where e.department_id = sal.department_id and
+    e.salary = sal.salary
+order by e.department_id;
+
+
+
+
+
+
+
+
