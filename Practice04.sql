@@ -9,7 +9,8 @@ from employees
 where salary < 6462;
     
 -- 두 쿼리를 합친다.
-select count(salary) from employees
+select count(salary) 
+from employees
 where salary < (select avg(salary) from employees);
 
 
@@ -31,7 +32,21 @@ group by employee_id, first_name, salary
 order by salary;
 
 
+-- 풀이 2.
+-- 사용할 서브쿼리
+select avg(salary) avgSalary, Max(salary) maxSalary from employees;
 
+-- 답
+select
+    e.employee_id,
+    e.first_name,
+    e.salary,
+    t.avgSalary,
+    t.maxSalary
+
+from employees e,(select avg(salary) avgSalary, Max(salary) maxSalary from employees) t
+where e.salary between t.avgSalary and t.maxSalary
+order by salary;
 
 
 
@@ -50,6 +65,34 @@ select
 from locations l, employees
 where first_name || ' ' || last_name = 'Steven King'; 
 
+-- 풀이 3.
+-- 쿼리1. Steven King이 소속된 부서
+select 
+    department_id from employees
+where first_name = 'Steven' and last_name = 'King';
+
+-- 쿼리 2. Steven King이 소속된 부서가 위치한 location 정보
+select
+    location_id
+from departments
+where department_id = (select department_id from employees where first_name = 'Steven' and last_name = 'King');
+
+-- 최종쿼리
+select 
+    location_id, 
+    street_address, 
+    postal_code, 
+    city, 
+    state_province, 
+    country_id
+from locations
+where location_id = (select location_id 
+                    from departments
+                    where department_id = 
+                         (select department_id 
+                         from employees 
+                         where first_name = 'Steven' 
+                            and last_name = 'King'));
 
 -- 문제 4.
 -- job_id 가 'ST_MAN' 인 직원의 급여보다 작은 직원의 사번,이름,급여를 
@@ -61,6 +104,16 @@ select
 from employees
 where salary < any (select salary from employees where job_id = 'ST_MAN');
 
+-- 풀이 4.
+-- 쿼리 1:
+SELECT salary from employees Where job_id = 'ST_MAN';
+-- 최종 쿼리
+select 
+    employee_id,
+    first_name,
+    salary
+from employees
+where salary < any (SELECT salary from employees Where job_id = 'ST_MAN');
 
 -- 문제 5.
 -- 각 부서별로 최고의 급여를 받는 사원의 
@@ -80,6 +133,35 @@ from employees e, (select department_id, max(salary)
 
 order by salary desc;
 
+-- 풀이 5.
+-- 쿼리 1 :
+select department_id, max(salary)
+from employees
+group by department_id;
+
+-- 최종 쿼리
+select
+    employee_id,
+    first_name,
+    salary,
+    department_id
+from employees
+where (department_id, salary) in 
+    (select department_id, max(salary)
+        from employees
+        group by department_id)
+order by salary desc;
+
+-- 최종쿼리 : 테이블 조인
+select
+    e.employee_id,
+    e.first_name,
+    e.salary,
+    e.department_id
+from employees e, (select department_id, max(salary) salary from employees group by department_id) t
+where e.department_id = t.department_id and e.salary = t.salary
+order by e.salary desc;
+
 
 -- 문제 6.
 -- 각 업무(job) 별로 연봉(salary)의 총합을 구하고자 합니다.
@@ -89,11 +171,40 @@ select j.job_title, sum(salary*12)
 from jobs j, employees e
 group by j.job_title;
 
+-- 풀이 6. 
+-- 쿼리 1 :
+select job_id, sum(salary) sumSalary
+from employees group by job_id;
+
+-- 최종 쿼리 :
+select j.job_title, t.sumSalary 
+from jobs j, (select job_id, sum(salary) sumSalary
+from employees group by job_id) t
+where j.job_id = t.job_id
+order by t.sumSalary desc;
+
+
 
 -- 문제 7.
 -- 자신의 부서 평균 급여보다 연봉(salary)이 많은 직원의 직원번호(employee_id), 
 -- 이름(first_name)과 급여(salary)을 조회하세요 (38건)
 
+-- 풀이 7.
+-- 쿼리 1: 부서별 평균 급여
+select 
+    department_id, avg(salary) salary
+from employees group by department_id;
+
+-- 최종 쿼리 :
+select 
+    e.employee_id, 
+    e.first_name,
+    e.salary
+from employees e, 
+        (select department_id, avg(salary) salary
+from employees group by department_id) t
+where e.department_id = t.department_id and
+e.salary > t.salary;
 
 
 -- 문제 8.
@@ -106,4 +217,48 @@ select rownum,
 from (select * from employees
         order by hire_date)
 where rownum BETWEEN 11 and 15;
+
+-- 풀이 8.
+-- 쿼리 1 :
+select rownum,
+    employee_id,
+    first_name,
+    salary,
+    hire_date
+from employees
+order by hire_date asc;
+
+-- 쿼리 2 :
+select rownum rn,
+    employee_id,
+    first_name,
+    salary,
+    hire_date
+from ( select 
+          employee_id,
+          first_name,
+          salary,
+          hire_date
+from employees
+order by hire_date asc);
+
+-- 최종 쿼리 
+SELECT rn,
+    employee_id,
+    first_name,
+    salary,
+    hire_date
+from (select rownum rn,
+        employee_id,
+        first_name,
+        salary,
+        hire_date
+            from (select 
+                      employee_id,
+                      first_name,
+                      salary,
+                      hire_date
+                            from employees
+                            order by hire_date asc))
+where rn BETWEEN 11 and 15;
 
