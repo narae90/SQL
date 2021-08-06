@@ -128,5 +128,15 @@ alter table book
 add CONSTRAINT fk_author_id FOREIGN key (author_id)
                             REFERENCES author(author_id)
                             on delete cascade;
+                            
+-- DATA DICTONARY
+-- 전체 데이터 딕셔너리 확인
+SELECT * FROM DICTIONARY;
+
+-- 사용자의 스키마 객체 확인 : USER_OBJECTS
+select * from user_objects;
+
+-- 제약 조건의 확인 : user_constraints
+select * from user_constraints;
 
 
