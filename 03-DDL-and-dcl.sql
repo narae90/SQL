@@ -59,5 +59,74 @@ grant select on hr.employees to c##bituser;
 -- grant all privileges... -- 나중에 ~
 
 
+-----------
+--DDL
+-----------
+-- 이후 C##BITUSER로 진행
+
+-- 현재 내가 소유한 테이블 목록 확인
+select * from tab;
+-- 현재 나에게 주어진 ROLE을 조회
+select * from user_role_privs;
+
+
+-- CREATE TABLE : 테이블 생성
+CREATE TABLE book (
+    book_id number(5),
+    title VARCHAR2(50),
+    author VARCHAR2(10),
+    pub_date date DEFAULT sysdate
+);
+
+select * from tab;
+-- 테이블 정의 정보 확인
+desc book; 
+
+-- 서브쿼리를 이용한 테이블 생성
+-- HR스키마의 EMPLOYEES 테이블의 일부 데이터를 추출, 새 테이블 생성
+select * from hr.employees;
+
+-- job_id가 it_ 관련 직원들만 뽑아내어 새 테이블 생성 -- 왜 오류나지
+create table it_emps as(
+    select * from hr.employees
+    where job_id like 'it_%');
+desc it_emps;
+select * from it_emps;
+
+drop table it_emps; -- 삭제
+
+-- author 테이블 추가
+create table author(
+    author_id number(10),
+    author_name varchar2(50) not null,
+    author_desc varchar2(500),
+    PRIMARY key (author_id) -- 테이블 제약
+);
+
+-- book 테이블의 author 칼럼 지우기
+-- 나중에 author 테이블과 FK 연결
+desc book;
+alter table book drop COLUMN author;
+
+-- author 테이블 참조를 위한 컬럼 author_id 추가
+alter table book add (author_id number(10));
+
+-- book 테이블의 book_id도 number(10)으로 변경
+alter table book
+MODIFY (book_id number(10));
+
+desc book;
+desc author;
+
+
+-- book.book_id에 PK 제약조건 부여
+alter table book
+add CONSTRAINT pk_book_id PRIMARY key (book_id);
+
+-- book.author_id를 author.author_id를 참조하도록 제약
+alter table book
+add CONSTRAINT fk_author_id FOREIGN key (author_id)
+                            REFERENCES author(author_id)
+                            on delete cascade;
 
 
