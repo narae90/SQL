@@ -151,6 +151,8 @@ group by manager_id
     having avg(salary) >= 5000
 order by avg(salary) desc;
 
+
+
 -- 문제 10. 
 -- 아래회사는 보너스 지급을 위해 직원을 입사일 기준으로 나눌려고 합니다 .
 -- 입사일이 02/12/31 일 이전이면 창립맴버 , 03 년은 '03 년입사’, 04 년은 04 년입사’

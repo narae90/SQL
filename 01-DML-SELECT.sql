@@ -188,35 +188,37 @@ ORDER BY department_id, -- 1차 정렬
 -----단일행 함수---
 -- 한 개의 레코드를 입력으로 받는 함수
 -- 문자열 단일행 함수 연습
-select first_name, last_name, 
-concat(first_name, concat('',last_name)), -- 연결
-initcap(first_name || '' || last_name), -- 각 단어의 첫글자만 대문자
-lower(first_name), -- 모두 소문자
-upper(first_name), -- 모두 대문자
-lpad(first_name, 10, '*'), -- 왼쪽 채우기
-rpad(first_name, 10, '*') -- 오른쪽 채우기
-from employees;
+SELECT first_name, last_name,
+    CONCAT(first_name, CONCAT(' ', last_name)), -- 연결
+    INITCAP(first_name || ' ' || last_name), -- 각 단어의 첫글자만 대문자
+    LOWER(first_name), -- 모두 소문자
+    UPPER(first_name), -- 모두 대문자
+    LPAD(first_name, 10, '*'), -- 왼쪽 채우기
+    RPAD(first_name, 10, '*')  -- 오른쪽 채우기
+FROM employees;
 
-select ltrim('            Oracle            '),  -- 왼쪽 공백제거
-rtrim('                  Oracle            '), -- 오른쪽 공백 제거
-trim('*' from '******Database******'), -- 양쪽의 * 제거
-substr('Oracle Database', 8, 4), -- 부분 문자열
-substr('Oracle Database', -8, 8) -- 부분 문자열
-from dual;
+
+SELECT LTRIM('     Oracle     '), -- 왼쪽 공백 제거
+    RTRIM('     Oracle     '), -- 오른쪽 공백 제거
+    TRIM('*' FROM '*****Database****'), -- 양쪽의 * 제거
+    SUBSTR('Oracle Database', 8, 4), -- 부분 문자열
+    SUBSTR('Oracle Database', -8, 8) -- 부분 문자열
+FROM dual;
 
 
 --수치형 단일행 함수
-select abs(-3.14), --절대값
-    ceil(3.14),     -- 소수점 올림(천장)
-    floor(3.14),    -- 소수점 내림(바닥)
-    mod(7,3),       -- 나머지
-    power(2,4),     --제곱: 2의 4제곱
-    round(3.5),     --소수점 반올림 (중요)
-    round(3.14159, 3),  --소수점 3자리까지 반올림으로 표현 (중요)
-    trunc(3.5),     -- 소수점 버림 (중요)
-    trunc(3.14149, 3), --소수점 3자리까지 버림으로 표현 (중요)
-    sign(-10)       --부호함수 혹은 0
-From dual;
+SELECT ABS(-3.14),  --  절댓값
+    CEIL(3.14),     -- 소수점 올림(천정)
+    FLOOR(3.14),    --  소수점 버림(바닥)
+    MOD(7,3),       --  나머지
+    POWER(2, 4),    --  제곱: 2의 4제곱
+    ROUND(3.5),     --  소수점 반올림
+    ROUND(3.14159, 3),  --  소수점 3자리까지 반올림으로 표현
+    TRUNC(3.5),     --  소수점 버림
+    TRUNC(3.14149, 3),  --  소수점 3자리까지 버림으로 표현
+    SIGN(-10)       --  부호 혹은 0
+FROM dual;
+
 
 
 
@@ -225,21 +227,22 @@ From dual;
 -------------
 
 -- 현재 날짜와 시간
-SELECT sysdate from dual; -- 1행
-select sysdate from employees; -- employees의 레코드 개수 만큼
+SELECT SYSDATE FROM dual;   -- 1행
+SELECT SYSDATE FROM employees;  --  employees의 레코드 개수만큼
+
 
 -- 날짜 관련 단일행 함수
 
-select sysdate,
-    add_months(sysdate, 2), -- 2개월 후
-    last_day(sysdate),      -- 이번 달의 마지막 날
-    months_between(sysdate, '99/12/31'), -- 99년 마지막날 이 후 몇달이 지났는지
-    next_day(sysdate, 7),    --
-    round(sysdate, 'month'),
-    round(sysdate, 'year'),
-    trunc(sysdate, 'month'),
-    trunc(sysdate, 'year')
-from dual;
+SELECT sysdate,
+    ADD_MONTHS(sysdate, 2), --  2개월 후
+    LAST_DAY(sysdate),  --  이번 달의 마지막 날
+    MONTHS_BETWEEN(sysdate, '99/12/31'),    --  1999년 마지막날 이후 몇 달이 지났나?
+    NEXT_DAY(sysdate, 7),
+    ROUND(sysdate, 'MONTH'),
+    ROUND(sysdate, 'YEAR'),
+    TRUNC(sysdate, 'MONTH'),
+    TRUNC(sysdate, 'YEAR')
+FROM dual;
     
     
     
@@ -255,7 +258,7 @@ from dual;
 --TO_CHAR
 select first_name, hire_date,
     to_char(hire_date, 'YYYY-MM-DD HH24:MI:SS'),
-    to_char(sysdate, 'YYYY-MM-DD HH24:MI:SS')
+    TO_CHAR(sysdate, 'YYYY-MM-DD HH24:MI:SS')
 FROM employees;
 
 select to_char(3000000, 'L999,999,999') from dual;
