@@ -43,8 +43,9 @@ create or replace view emp_10
     with read only;
 
 select*from emp_10;
-update emp_10 set salary = salary * 2;
+UPDATE emp_10 SET salary = salary * 2;
 
+DESC book;
 
 -- complex view
 create or replace view book_detail
